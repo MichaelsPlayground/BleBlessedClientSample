@@ -1,11 +1,5 @@
 package de.androidcrypto.bleblessedclientsample;
 
-import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE;
-import static com.welie.blessed.BluetoothBytesParser.FORMAT_SINT16;
-import static com.welie.blessed.BluetoothBytesParser.FORMAT_UINT16;
-import static com.welie.blessed.BluetoothBytesParser.FORMAT_UINT8;
-import static com.welie.blessed.BluetoothBytesParser.bytes2String;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,10 +7,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,46 +17,33 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.welie.blessed.BluetoothBytesParser;
 import com.welie.blessed.BluetoothCentralManager;
 
-import com.welie.blessed.BluetoothCentralManagerCallback;
 import com.welie.blessed.BluetoothPeripheral;
-import com.welie.blessed.BluetoothPeripheralCallback;
-import com.welie.blessed.ConnectionPriority;
-import com.welie.blessed.GattStatus;
-import com.welie.blessed.ScanMode;
-import com.welie.blessed.WriteType;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.ByteOrder;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.TimeZone;
-import java.util.UUID;
 
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
     Button scanForDevices;
-    TextView heartRateMeasurement;
+    //TextView heartRateMeasurement2;
     String heartRateMeasurementString;
-
+    com.google.android.material.textfield.TextInputEditText heartRateMeasurement;
+    com.google.android.material.textfield.TextInputEditText currentTime;
 
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -82,11 +60,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        heartRateMeasurement = findViewById(R.id.tvMainHeartRateMeasurement);
+        //heartRateMeasurement2 = findViewById(R.id.tvMainHeartRateMeasurement);
+        heartRateMeasurement = findViewById(R.id.etMainHeartRateMeasurement);
+        currentTime = findViewById(R.id.etMainCurrentTime);
 
         registerReceiver(locationServiceStateReceiver, new IntentFilter((LocationManager.MODE_CHANGED_ACTION)));
         registerReceiver(heartRateDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_HEARTRATE ));
-
+        registerReceiver(currentTimeDataReceiver, new IntentFilter(BluetoothHandler.MEASUREMENT_CURRENT_TIME));
 
         //registerReceiver(locationServiceStateReceiver, new IntentFilter((LocationManager.MODE_CHANGED_ACTION)));
         //registerReceiver(heartRateDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_HEARTRATE ));
@@ -315,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         unregisterReceiver(heartRateDataReceiver);
         unregisterReceiver(locationServiceStateReceiver);
+        unregisterReceiver(currentTimeDataReceiver);
         /*
         unregisterReceiver(bloodPressureDataReceiver);
         unregisterReceiver(temperatureDataReceiver);
@@ -353,12 +334,23 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             HeartRateMeasurement measurement = (HeartRateMeasurement) intent.getSerializableExtra(BluetoothHandler.MEASUREMENT_HEARTRATE_EXTRA);
-            Log.i("Main", "heartRateDataReceiver");
+            //Log.i("Main", "heartRateDataReceiver");
             if (measurement == null) return;
             heartRateMeasurementString = String.format(Locale.ENGLISH, "%d bpm", measurement.pulse);
             heartRateMeasurement.setText(heartRateMeasurementString);
-            Log.i("Main", "heartRateMeasurement: " + heartRateMeasurement);
+            //Log.i("Main", "heartRateMeasurement: " + heartRateMeasurement);
             //measurementValue.setText(String.format(Locale.ENGLISH, "%d bpm", measurement.pulse));
         }
     };
+
+    private final BroadcastReceiver currentTimeDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String currentTimeString = intent.getStringExtra(BluetoothHandler.MEASUREMENT_CURRENT_TIME_EXTRA);
+            if (currentTimeString == null) return;
+            currentTime.setText(currentTimeString);
+            //measurementValue.setText(String.format(Locale.ENGLISH, "%d bpm", measurement.pulse));
+        }
+    };
+
 }

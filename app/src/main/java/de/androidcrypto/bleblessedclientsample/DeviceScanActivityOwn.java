@@ -18,6 +18,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 public class DeviceScanActivityOwn extends AppCompatActivity {
 
     // https://developer.android.com/guide/topics/connectivity/bluetooth/find-ble-devices#java
@@ -31,6 +35,7 @@ public class DeviceScanActivityOwn extends AppCompatActivity {
     Button scan, btnReturn;
     ListView listView;
     ArrayAdapter<String> scannedDevicesArrayAdapter;
+    List<String> subject_list; // for temporary list
 
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 5000; // 5000 = 5 seconds
@@ -54,8 +59,6 @@ public class DeviceScanActivityOwn extends AppCompatActivity {
         scannedDevicesArrayAdapter = new ArrayAdapter<>(this, R.layout.device_name);
         listView.setAdapter(scannedDevicesArrayAdapter);
 
-
-
         scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -63,6 +66,7 @@ public class DeviceScanActivityOwn extends AppCompatActivity {
                 progressBar.setIndeterminate(false);
                 progressBar.setVisibility(View.VISIBLE);
                 //doDiscovery();
+                subject_list = new ArrayList<String>();
                 scanLeDevice();
             }
         });
@@ -91,13 +95,8 @@ public class DeviceScanActivityOwn extends AppCompatActivity {
                 intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
                 startActivity(intent);
                 finish();
-
-
-
             }
         });
-
-
     }
 
     @SuppressLint("MissingPermission")
@@ -134,7 +133,17 @@ public class DeviceScanActivityOwn extends AppCompatActivity {
                             "name: " + result.getDevice().getName()
                             + " type: " + result.getDevice().getType()
                             + " address: " + result.getDevice().getAddress();
-                    scannedDevicesArrayAdapter.add(deviceInfos);
+                    // todo make a switch if all devices or only named devices get added
+                    if (result.getDevice().getName() != null) {
+                        subject_list.add(deviceInfos);
+                        HashSet<String> hashSet = new HashSet<String>();
+                        hashSet.addAll(subject_list);
+                        subject_list.clear();
+                        subject_list.addAll(hashSet);
+                        scannedDevicesArrayAdapter.clear();
+                        scannedDevicesArrayAdapter.addAll(hashSet);
+                    //scannedDevicesArrayAdapter.add(deviceInfos);
+                    }
                     //leDeviceListAdapter.notifyDataSetChanged();
                 }
             };

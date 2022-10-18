@@ -13,6 +13,7 @@ import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.welie.blessed.BluetoothBytesParser;
@@ -211,9 +212,14 @@ class BluetoothHandler {
             */
             } else if (characteristicUUID.equals(CURRENT_TIME_CHARACTERISTIC_UUID)) {
                 Date currentTime = parser.getDateTime();
+                //Log.i("BH", "currentTimne: " + currentTime);
                 Timber.i("Received device time: %s", currentTime);
-
+                Intent intent = new Intent(MEASUREMENT_CURRENT_TIME);
+                intent.putExtra(MEASUREMENT_CURRENT_TIME_EXTRA, currentTime.toString());
+                sendMeasurement(intent, peripheral);
+                Timber.d("%s", currentTime);
                 // Deal with Omron devices where we can only write currentTime under specific conditions
+                /*
                 if (isOmronBPM(peripheral.getName())) {
                     BluetoothGattCharacteristic bloodpressureMeasurement = peripheral.getCharacteristic(BLP_SERVICE_UUID, BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC_UUID);
                     if (bloodpressureMeasurement == null) return;
@@ -227,7 +233,12 @@ class BluetoothHandler {
                         parser.setCurrentTime(Calendar.getInstance());
                         peripheral.writeCharacteristic(characteristic, parser.getValue(), WriteType.WITH_RESPONSE);
                     }
-                }
+                } else {
+                    Intent intent = new Intent(MEASUREMENT_CURRENT_TIME);
+                    intent.putExtra(MEASUREMENT_HEARTRATE_EXTRA, currentTime);
+                    sendMeasurement(intent, peripheral);
+                    Timber.d("%s", currentTime);
+                } */
             } else if (characteristicUUID.equals(BATTERY_LEVEL_CHARACTERISTIC_UUID)) {
                 int batteryLevel = parser.getIntValue(FORMAT_UINT8);
                 Timber.i("Received battery level %d%%", batteryLevel);
@@ -360,7 +371,7 @@ class BluetoothHandler {
         printToast("BH received macAddress: " + mMacAddress);
 
         // Plant a tree
-        Timber.plant(new Timber.DebugTree());
+        //Timber.plant(new Timber.DebugTree());
 
         // Create BluetoothCentral
         central = new BluetoothCentralManager(context, bluetoothCentralManagerCallback, new Handler());
