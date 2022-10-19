@@ -41,22 +41,24 @@ import timber.log.Timber;
 class BluetoothHandler {
 
     // Intent constants
-    public static final String MEASUREMENT_HEARTRATE = "blessed.measurement.heartrate";
-    public static final String MEASUREMENT_HEARTRATE_EXTRA = "blessed.measurement.heartrate.extra";
-    public static final String MEASUREMENT_EXTRA_PERIPHERAL = "blessed.measurement.peripheral";
-    public static final String MEASUREMENT_BLOODPRESSURE = "blessed.measurement.bloodpressure";
-    public static final String MEASUREMENT_BLOODPRESSURE_EXTRA = "blessed.measurement.bloodpressure.extra";
-    public static final String MEASUREMENT_TEMPERATURE = "blessed.measurement.temperature";
-    public static final String MEASUREMENT_TEMPERATURE_EXTRA = "blessed.measurement.temperature.extra";
-    public static final String MEASUREMENT_GLUCOSE = "blessed.measurement.glucose";
-    public static final String MEASUREMENT_GLUCOSE_EXTRA = "blessed.measurement.glucose.extra";
-    public static final String MEASUREMENT_PULSE_OX = "blessed.measurement.pulseox";
-    public static final String MEASUREMENT_PULSE_OX_EXTRA_CONTINUOUS = "blessed.measurement.pulseox.extra.continuous";
-    public static final String MEASUREMENT_PULSE_OX_EXTRA_SPOT = "blessed.measurement.pulseox.extra.spot";
-    public static final String MEASUREMENT_WEIGHT = "blessed.measurement.weight";
-    public static final String MEASUREMENT_WEIGHT_EXTRA = "blessed.measurement.weight.extra";
-    public static final String MEASUREMENT_CURRENT_TIME = "blessed.measurement.currenttime";
-    public static final String MEASUREMENT_CURRENT_TIME_EXTRA = "blessed.measurement.currenttime.extra";
+    public static final String CONNECTED_DEVICE_ACTION = "androidcrypto.connected.device";
+    public static final String CONNECTED_DEVICE_EXTRA = "androidcrypto.connected.device.extra";
+    public static final String MEASUREMENT_HEARTRATE = "androidcrypto.measurement.heartrate";
+    public static final String MEASUREMENT_HEARTRATE_EXTRA = "androidcrypto.measurement.heartrate.extra";
+    public static final String MEASUREMENT_EXTRA_PERIPHERAL = "androidcrypto.measurement.peripheral";
+    public static final String MEASUREMENT_BLOODPRESSURE = "androidcrypto.measurement.bloodpressure";
+    public static final String MEASUREMENT_BLOODPRESSURE_EXTRA = "androidcrypto.measurement.bloodpressure.extra";
+    public static final String MEASUREMENT_TEMPERATURE = "androidcrypto.measurement.temperature";
+    public static final String MEASUREMENT_TEMPERATURE_EXTRA = "androidcrypto.measurement.temperature.extra";
+    public static final String MEASUREMENT_GLUCOSE = "androidcrypto.measurement.glucose";
+    public static final String MEASUREMENT_GLUCOSE_EXTRA = "androidcrypto.measurement.glucose.extra";
+    public static final String MEASUREMENT_PULSE_OX = "androidcrypto.measurement.pulseox";
+    public static final String MEASUREMENT_PULSE_OX_EXTRA_CONTINUOUS = "androidcrypto.measurement.pulseox.extra.continuous";
+    public static final String MEASUREMENT_PULSE_OX_EXTRA_SPOT = "androidcrypto.measurement.pulseox.extra.spot";
+    public static final String MEASUREMENT_WEIGHT = "androidcrypto.measurement.weight";
+    public static final String MEASUREMENT_WEIGHT_EXTRA = "androidcrypto.measurement.weight.extra";
+    public static final String MEASUREMENT_CURRENT_TIME = "androidcrypto.measurement.currenttime";
+    public static final String MEASUREMENT_CURRENT_TIME_EXTRA = "androidcrypto.measurement.currenttime.extra";
 
     // UUIDs for the Blood Pressure service (BLP)
     private static final UUID BLP_SERVICE_UUID = UUID.fromString("00001810-0000-1000-8000-00805f9b34fb");
@@ -295,17 +297,29 @@ class BluetoothHandler {
         @Override
         public void onConnectedPeripheral(@NotNull BluetoothPeripheral peripheral) {
             Timber.i("connected to '%s'", peripheral.getName());
-            printToast("connected to:" + peripheral.getName());
+            //printToast("connected to:" + peripheral.getName());
+            String data = "connected to:" + peripheral.getAddress() + " (" + peripheral.getName() + ")";
+            Intent intent = new Intent(CONNECTED_DEVICE_ACTION);
+            intent.putExtra(CONNECTED_DEVICE_EXTRA, data);
+            context.sendBroadcast(intent);
         }
 
         @Override
         public void onConnectionFailed(@NotNull BluetoothPeripheral peripheral, final @NotNull HciStatus status) {
             Timber.e("connection '%s' failed with status %s", peripheral.getName(), status);
+            String data = "connection failed with:" + peripheral.getAddress() + " (" + peripheral.getName() + ")";
+            Intent intent = new Intent(CONNECTED_DEVICE_ACTION);
+            intent.putExtra(CONNECTED_DEVICE_EXTRA, data);
+            context.sendBroadcast(intent);
         }
 
         @Override
         public void onDisconnectedPeripheral(@NotNull final BluetoothPeripheral peripheral, final @NotNull HciStatus status) {
             Timber.i("disconnected '%s' with status %s", peripheral.getName(), status);
+            String data = "disconnected from:" + peripheral.getAddress() + " (" + peripheral.getName() + ")";
+            Intent intent = new Intent(CONNECTED_DEVICE_ACTION);
+            intent.putExtra(CONNECTED_DEVICE_EXTRA, data);
+            context.sendBroadcast(intent);
 
             // Reconnect to this device when it becomes available again
             handler.postDelayed(new Runnable() {
@@ -319,7 +333,7 @@ class BluetoothHandler {
         @Override
         public void onDiscoveredPeripheral(@NotNull BluetoothPeripheral peripheral, @NotNull ScanResult scanResult) {
             Timber.i("Found peripheral '%s'", peripheral.getName());
-            printToast("found peripheral: " + peripheral.getName());
+            //printToast("found peripheral: " + peripheral.getName());
             central.stopScan();
 
             if (peripheral.getName().contains("Contour") && peripheral.getBondState() == BondState.NONE) {
@@ -345,11 +359,11 @@ class BluetoothHandler {
         @Override
         public void onScanFailed(@NotNull ScanFailure scanFailure) {
             Timber.i("scanning failed with error %s", scanFailure);
-            printToast("scanning failed with error " + scanFailure);
+            //printToast("scanning failed with error " + scanFailure);
         }
     };
 
-    public static synchronized BluetoothHandler getInstance(Context context) {
+    public static synchronized BluetoothHandler getInstance2(Context context) {
         if (instance == null) {
             instance = new BluetoothHandler(context.getApplicationContext(), null);
         }
@@ -368,7 +382,20 @@ class BluetoothHandler {
         this.context = context;
         this.mMacAddress = macAddress; // may be null !
 
-        printToast("BH received macAddress: " + mMacAddress);
+        printToast("BH constructor MAC: " + macAddress);
+
+
+        // reset the complete handler if macAddress is provided
+        if ((macAddress != null) & (!macAddress.equals(""))) {
+
+
+        //    central.stopScan();
+        //    central.close();
+        }
+
+
+
+        //printToast("BH received macAddress: " + mMacAddress);
 
         // Plant a tree
         //Timber.plant(new Timber.DebugTree());
@@ -378,7 +405,7 @@ class BluetoothHandler {
 
         // Scan for peripherals with a certain service UUIDs
         //central.startPairingPopupHack();
-        printToast("now startScan with mMacAddress: " + mMacAddress);
+        //printToast("now startScan with mMacAddress: " + mMacAddress);
         startScan(mMacAddress);
     }
 
@@ -393,7 +420,7 @@ class BluetoothHandler {
                     printToast("BH macAddress == null");
                     central.scanForPeripheralsWithServices(new UUID[]{HRS_SERVICE_UUID, BTS_SERVICE_UUID});
                 } else {
-                    printToast("BH macAddress NOT null");
+                    //printToast("BH macAddress NOT null");
                     BluetoothPeripheral peripheral = central.getPeripheral(macAddress);
                     printToast("found peripheral: " + peripheral.getName());
                     central.stopScan();

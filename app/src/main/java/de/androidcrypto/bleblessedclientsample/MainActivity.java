@@ -42,9 +42,11 @@ public class MainActivity extends AppCompatActivity {
     Button scanForDevices;
     //TextView heartRateMeasurement2;
     String heartRateMeasurementString;
+    com.google.android.material.textfield.TextInputEditText connectedDevice;
     com.google.android.material.textfield.TextInputEditText heartRateMeasurement;
     com.google.android.material.textfield.TextInputEditText currentTime;
 
+    String connectedDeviceFromBluetoothHandler;
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int ACCESS_LOCATION_REQUEST = 2;
@@ -60,10 +62,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //heartRateMeasurement2 = findViewById(R.id.tvMainHeartRateMeasurement);
+        connectedDevice = findViewById(R.id.etMainConnectedDevice);
         heartRateMeasurement = findViewById(R.id.etMainHeartRateMeasurement);
         currentTime = findViewById(R.id.etMainCurrentTime);
 
+        // get the connectedDevice in case of "back key" pushed
+        if (connectedDeviceFromBluetoothHandler != null) {
+            connectedDevice.setText(connectedDeviceFromBluetoothHandler);
+        }
+
+        registerReceiver(connectedDeviceDataReceiver, new IntentFilter((BluetoothHandler.CONNECTED_DEVICE_ACTION)));
         registerReceiver(locationServiceStateReceiver, new IntentFilter((LocationManager.MODE_CHANGED_ACTION)));
         registerReceiver(heartRateDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_HEARTRATE ));
         registerReceiver(currentTimeDataReceiver, new IntentFilter(BluetoothHandler.MEASUREMENT_CURRENT_TIME));
@@ -118,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
 
     private void printToast(String message) {
         Toast.makeText(getApplicationContext(),
@@ -274,11 +281,13 @@ public class MainActivity extends AppCompatActivity {
 
         return bluetoothAdapter.isEnabled();
     }
-
+/*
     private void initBluetoothHandler()
     {
         BluetoothHandler.getInstance(getApplicationContext());
     }
+
+ */
 
     private void initBluetoothHandler(String macAddress)
     {
@@ -296,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(heartRateDataReceiver);
         unregisterReceiver(locationServiceStateReceiver);
         unregisterReceiver(currentTimeDataReceiver);
+        unregisterReceiver(connectedDeviceDataReceiver);
         /*
         unregisterReceiver(bloodPressureDataReceiver);
         unregisterReceiver(temperatureDataReceiver);
@@ -310,7 +320,8 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private BluetoothPeripheral getPeripheral(String peripheralAddress) {
-        BluetoothCentralManager central = BluetoothHandler.getInstance(getApplicationContext()).central;
+        //BluetoothCentralManager central = BluetoothHandler.getInstance(getApplicationContext()).central;
+        BluetoothCentralManager central = BluetoothHandler.getInstance(getApplicationContext(), peripheralAddress).central;
         return central.getPeripheral(peripheralAddress);
     }
 
@@ -327,6 +338,15 @@ public class MainActivity extends AppCompatActivity {
                 Timber.i("Location service state changed to: %s", isEnabled ? "on" : "off");
                 checkPermissions();
             }
+        }
+    };
+
+    private final BroadcastReceiver connectedDeviceDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String connectedDeviceString = intent.getStringExtra(BluetoothHandler.CONNECTED_DEVICE_EXTRA);
+            if (connectedDeviceString == null) return;
+            connectedDevice.setText(connectedDeviceString);
         }
     };
 
@@ -348,6 +368,7 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String currentTimeString = intent.getStringExtra(BluetoothHandler.MEASUREMENT_CURRENT_TIME_EXTRA);
             if (currentTimeString == null) return;
+            connectedDeviceFromBluetoothHandler = currentTimeString;
             currentTime.setText(currentTimeString);
             //measurementValue.setText(String.format(Locale.ENGLISH, "%d bpm", measurement.pulse));
         }

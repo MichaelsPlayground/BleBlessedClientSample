@@ -135,6 +135,7 @@ public class DeviceScanActivityOwn extends AppCompatActivity {
                             + " address: " + result.getDevice().getAddress();
                     // todo make a switch if all devices or only named devices get added
                     if (result.getDevice().getName() != null) {
+                        // this code is for avoiding duplicates in the listview
                         subject_list.add(deviceInfos);
                         HashSet<String> hashSet = new HashSet<String>();
                         hashSet.addAll(subject_list);

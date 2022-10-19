@@ -21,14 +21,14 @@
         android:text="start scanning" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/etMainHeartRateMeasurementDecoration"
+        android:id="@+id/etMainConnectedDeviceDecoration"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
-        android:hint="Heart beat rate from Heart Rate Measurement"
+        android:hint="connected device"
         android:visibility="visible"
         app:boxCornerRadiusBottomEnd="5dp"
         app:boxCornerRadiusBottomStart="5dp"
@@ -38,14 +38,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- android:maxLines="1" -->
+
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etMainHeartRateMeasurement"
+            android:id="@+id/etMainConnectedDevice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:focusable="false"
-            android:maxLines="1"
             android:text=""
+            android:textSize="14sp"
             android:visibility="visible"
             tools:ignore="KeyboardInaccessibleWidget" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -80,11 +82,44 @@
             tools:ignore="KeyboardInaccessibleWidget" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-        android:id="@+id/tvMainFoundDevices"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/etMainHeartRateMeasurementDecoration"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:hint="Heart beat rate from Heart Rate Measurement"
+        android:visibility="visible"
+        app:boxCornerRadiusBottomEnd="5dp"
+        app:boxCornerRadiusBottomStart="5dp"
+        app:boxCornerRadiusTopEnd="5dp"
+        app:boxCornerRadiusTopStart="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etMainHeartRateMeasurement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:focusable="false"
+            android:maxLines="1"
+            android:text=""
+            android:visibility="visible"
+            tools:ignore="KeyboardInaccessibleWidget" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/tvMainInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Note: the values above will appear as soon a notification is active"
+        android:textAlignment="viewStart"
+        android:textSize="16sp" />
 
 
 </LinearLayout>
