@@ -168,8 +168,6 @@ class BluetoothHandler {
             UUID characteristicUUID = characteristic.getUuid();
             BluetoothBytesParser parser = new BluetoothBytesParser(value);
 
-            System.out.println("*** charUUID: " + characteristicUUID.toString() + " ***");
-
             if (characteristicUUID.equals(HEART_BEAT_RATE_MEASUREMENT_CHARACTERISTIC_UUID)) {
                 HeartRateMeasurement measurement = new HeartRateMeasurement(value);
                 Intent intent = new Intent(MEASUREMENT_HEART_BEAT_RATE);
