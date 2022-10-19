@@ -43,8 +43,8 @@ class BluetoothHandler {
     // Intent constants
     public static final String CONNECTED_DEVICE_ACTION = "androidcrypto.connected.device";
     public static final String CONNECTED_DEVICE_EXTRA = "androidcrypto.connected.device.extra";
-    public static final String MEASUREMENT_HEARTRATE = "androidcrypto.measurement.heartrate";
-    public static final String MEASUREMENT_HEARTRATE_EXTRA = "androidcrypto.measurement.heartrate.extra";
+    public static final String MEASUREMENT_HEART_BEAT_RATE = "androidcrypto.measurement.heartbeatrate";
+    public static final String MEASUREMENT_HEART_BEAT_RATE_EXTRA = "androidcrypto.measurement.heartbeatrate.extra";
     public static final String MEASUREMENT_EXTRA_PERIPHERAL = "androidcrypto.measurement.peripheral";
     public static final String MEASUREMENT_BLOODPRESSURE = "androidcrypto.measurement.bloodpressure";
     public static final String MEASUREMENT_BLOODPRESSURE_EXTRA = "androidcrypto.measurement.bloodpressure.extra";
@@ -201,8 +201,8 @@ class BluetoothHandler {
 
             if (characteristicUUID.equals(HEARTRATE_MEASUREMENT_CHARACTERISTIC_UUID)) {
                 HeartRateMeasurement measurement = new HeartRateMeasurement(value);
-                Intent intent = new Intent(MEASUREMENT_HEARTRATE);
-                intent.putExtra(MEASUREMENT_HEARTRATE_EXTRA, measurement);
+                Intent intent = new Intent(MEASUREMENT_HEART_BEAT_RATE);
+                intent.putExtra(MEASUREMENT_HEART_BEAT_RATE_EXTRA, measurement);
                 sendMeasurement(intent, peripheral);
                 Timber.d("%s", measurement);
             /*
