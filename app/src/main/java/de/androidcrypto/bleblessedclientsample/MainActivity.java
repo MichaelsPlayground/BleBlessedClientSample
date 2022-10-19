@@ -19,17 +19,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.welie.blessed.BluetoothCentralManager;
-
-import com.welie.blessed.BluetoothPeripheral;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -39,13 +34,14 @@ import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button scanForDevices;
-    //TextView heartRateMeasurement2;
+    Button scanForDevices, getCurrentTime, setCurrentTimeNotification, unsetCurrentTimeNotification;
     String heartRateMeasurementString;
     com.google.android.material.textfield.TextInputEditText connectedDevice;
     com.google.android.material.textfield.TextInputEditText heartRateMeasurement;
     com.google.android.material.textfield.TextInputEditText currentTime;
+    com.google.android.material.textfield.TextInputEditText manufacturerName;
 
+    BluetoothHandler bluetoothHandler;
     String connectedDeviceFromBluetoothHandler;
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -65,47 +61,27 @@ public class MainActivity extends AppCompatActivity {
         connectedDevice = findViewById(R.id.etMainConnectedDevice);
         heartRateMeasurement = findViewById(R.id.etMainHeartRateMeasurement);
         currentTime = findViewById(R.id.etMainCurrentTime);
+        manufacturerName = findViewById(R.id.etMainManufacturerNameMeasurement);
 
         // get the connectedDevice in case of "back key" pushed
         if (connectedDeviceFromBluetoothHandler != null) {
             connectedDevice.setText(connectedDeviceFromBluetoothHandler);
         }
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         registerReceiver(connectedDeviceDataReceiver, new IntentFilter((BluetoothHandler.CONNECTED_DEVICE_ACTION)));
         registerReceiver(locationServiceStateReceiver, new IntentFilter((LocationManager.MODE_CHANGED_ACTION)));
         registerReceiver(heartRateDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_HEART_BEAT_RATE ));
         registerReceiver(currentTimeDataReceiver, new IntentFilter(BluetoothHandler.MEASUREMENT_CURRENT_TIME));
-
-        //registerReceiver(locationServiceStateReceiver, new IntentFilter((LocationManager.MODE_CHANGED_ACTION)));
-        //registerReceiver(heartRateDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_HEARTRATE ));
-        /*
-        registerReceiver(locationServiceStateReceiver, new IntentFilter((LocationManager.MODE_CHANGED_ACTION)));
-        registerReceiver(bloodPressureDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_BLOODPRESSURE ));
-        registerReceiver(temperatureDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_TEMPERATURE ));
-        registerReceiver(heartRateDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_HEARTRATE ));
-        registerReceiver(pulseOxDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_PULSE_OX ));
-        registerReceiver(weightDataReceiver, new IntentFilter(BluetoothHandler.MEASUREMENT_WEIGHT));
-        registerReceiver(glucoseDataReceiver, new IntentFilter(BluetoothHandler.MEASUREMENT_GLUCOSE));
-        */
-
+        registerReceiver(manufacturerNameDataReceiver, new IntentFilter(BluetoothHandler.MEASUREMENT_MANUFACTURER_NAME));
 
         scanForDevices = findViewById(R.id.btnMainScan);
         scanForDevices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 Intent intent = new Intent(MainActivity.this, DeviceScanActivityOwn.class);
                 startActivity(intent);
-                /*
-                BluetoothHandler bth = BluetoothHandler.getInstance(view.getContext());
-                BluetoothCentralManager bcm = bth.central;
-                bcm.stopScan();
-                bcm.close();
-                registerReceiver(locationServiceStateReceiver, new IntentFilter((LocationManager.MODE_CHANGED_ACTION)));
-                registerReceiver(heartRateDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_HEARTRATE ));
-
-                bcm.scanForPeripherals();
-                */
             }
         });
 
@@ -125,6 +101,41 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        Button getCurrentTime = findViewById(R.id.btnMainGetCurrentTime);
+        getCurrentTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bluetoothHandler != null) {
+                    Log.i("Main", "readCurrentTime started");
+                    bluetoothHandler.readCurrentTime(macAddressFromScan);
+                }
+
+            }
+        });
+
+        Button setCurrentTimeNotification = findViewById(R.id.btnMainSetCurrentTimeNotification);
+        setCurrentTimeNotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bluetoothHandler != null) {
+                    Log.i("Main", "readCurrentTime started");
+                    bluetoothHandler.setCurrentTimeNotification(macAddressFromScan, true);
+                }
+
+            }
+        });
+
+        Button unsetCurrentTimeNotification = findViewById(R.id.btnMainUnsetCurrentTimeNotification);
+        unsetCurrentTimeNotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bluetoothHandler != null) {
+                    Log.i("Main", "readCurrentTime started");
+                    bluetoothHandler.setCurrentTimeNotification(macAddressFromScan, false);
+                }
+
+            }
+        });
     }
 
     private void printToast(String message) {
@@ -281,17 +292,10 @@ public class MainActivity extends AppCompatActivity {
 
         return bluetoothAdapter.isEnabled();
     }
-/*
-    private void initBluetoothHandler()
-    {
-        BluetoothHandler.getInstance(getApplicationContext());
-    }
-
- */
 
     private void initBluetoothHandler(String macAddress)
     {
-        BluetoothHandler.getInstance(getApplicationContext(), macAddress);
+        bluetoothHandler = BluetoothHandler.getInstance(getApplicationContext(), macAddress);
     }
 
     @NotNull
@@ -306,23 +310,7 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(locationServiceStateReceiver);
         unregisterReceiver(currentTimeDataReceiver);
         unregisterReceiver(connectedDeviceDataReceiver);
-        /*
-        unregisterReceiver(bloodPressureDataReceiver);
-        unregisterReceiver(temperatureDataReceiver);
-        unregisterReceiver(pulseOxDataReceiver);
-        unregisterReceiver(weightDataReceiver);
-        unregisterReceiver(glucoseDataReceiver);
-         */
-    }
-
-    /**
-     * section for peripheral
-     */
-
-    private BluetoothPeripheral getPeripheral(String peripheralAddress) {
-        //BluetoothCentralManager central = BluetoothHandler.getInstance(getApplicationContext()).central;
-        BluetoothCentralManager central = BluetoothHandler.getInstance(getApplicationContext(), peripheralAddress).central;
-        return central.getPeripheral(peripheralAddress);
+        unregisterReceiver(manufacturerNameDataReceiver);
     }
 
     /**
@@ -374,4 +362,13 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private final BroadcastReceiver manufacturerNameDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String manufacturerNameString = intent.getStringExtra(BluetoothHandler.MEASUREMENT_MANUFACTURER_NAME_EXTRA);
+            if (manufacturerNameString == null) return;
+            manufacturerName.setText(manufacturerNameString);
+            //measurementValue.setText(String.format(Locale.ENGLISH, "%d bpm", measurement.pulse));
+        }
+    };
 }

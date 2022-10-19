@@ -9,12 +9,16 @@ import static java.lang.Math.abs;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.welie.blessed.BluetoothBytesParser;
 import com.welie.blessed.BluetoothCentralManager;
@@ -46,35 +50,17 @@ class BluetoothHandler {
     public static final String MEASUREMENT_HEART_BEAT_RATE = "androidcrypto.measurement.heartbeatrate";
     public static final String MEASUREMENT_HEART_BEAT_RATE_EXTRA = "androidcrypto.measurement.heartbeatrate.extra";
     public static final String MEASUREMENT_EXTRA_PERIPHERAL = "androidcrypto.measurement.peripheral";
-    public static final String MEASUREMENT_BLOODPRESSURE = "androidcrypto.measurement.bloodpressure";
-    public static final String MEASUREMENT_BLOODPRESSURE_EXTRA = "androidcrypto.measurement.bloodpressure.extra";
-    public static final String MEASUREMENT_TEMPERATURE = "androidcrypto.measurement.temperature";
-    public static final String MEASUREMENT_TEMPERATURE_EXTRA = "androidcrypto.measurement.temperature.extra";
-    public static final String MEASUREMENT_GLUCOSE = "androidcrypto.measurement.glucose";
-    public static final String MEASUREMENT_GLUCOSE_EXTRA = "androidcrypto.measurement.glucose.extra";
-    public static final String MEASUREMENT_PULSE_OX = "androidcrypto.measurement.pulseox";
-    public static final String MEASUREMENT_PULSE_OX_EXTRA_CONTINUOUS = "androidcrypto.measurement.pulseox.extra.continuous";
-    public static final String MEASUREMENT_PULSE_OX_EXTRA_SPOT = "androidcrypto.measurement.pulseox.extra.spot";
-    public static final String MEASUREMENT_WEIGHT = "androidcrypto.measurement.weight";
-    public static final String MEASUREMENT_WEIGHT_EXTRA = "androidcrypto.measurement.weight.extra";
     public static final String MEASUREMENT_CURRENT_TIME = "androidcrypto.measurement.currenttime";
     public static final String MEASUREMENT_CURRENT_TIME_EXTRA = "androidcrypto.measurement.currenttime.extra";
-
-    // UUIDs for the Blood Pressure service (BLP)
-    private static final UUID BLP_SERVICE_UUID = UUID.fromString("00001810-0000-1000-8000-00805f9b34fb");
-    private static final UUID BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC_UUID = UUID.fromString("00002A35-0000-1000-8000-00805f9b34fb");
-
-    // UUIDs for the Health Thermometer service (HTS)
-    private static final UUID HTS_SERVICE_UUID = UUID.fromString("00001809-0000-1000-8000-00805f9b34fb");
-    private static final UUID TEMPERATURE_MEASUREMENT_CHARACTERISTIC_UUID = UUID.fromString("00002A1C-0000-1000-8000-00805f9b34fb");
-    private static final UUID PNP_ID_CHARACTERISTIC_UUID = UUID.fromString("00002A50-0000-1000-8000-00805f9b34fb");
+    public static final String MEASUREMENT_MANUFACTURER_NAME = "androidcrypto.measurement.manufacturername";
+    public static final String MEASUREMENT_MANUFACTURER_NAME_EXTRA = "androidcrypto.measurement.manufacturername.extra";
 
     // UUIDs for the Heart Rate service (HRS)
-    private static final UUID HRS_SERVICE_UUID = UUID.fromString("0000180D-0000-1000-8000-00805f9b34fb");
-    private static final UUID HEARTRATE_MEASUREMENT_CHARACTERISTIC_UUID = UUID.fromString("00002A37-0000-1000-8000-00805f9b34fb");
+    private static final UUID HEART_BEAT_SERVICE_UUID = UUID.fromString("0000180D-0000-1000-8000-00805f9b34fb");
+    private static final UUID HEART_BEAT_RATE_MEASUREMENT_CHARACTERISTIC_UUID = UUID.fromString("00002A37-0000-1000-8000-00805f9b34fb");
 
     // UUIDs for the Device Information service (DIS)
-    private static final UUID DIS_SERVICE_UUID = UUID.fromString("0000180A-0000-1000-8000-00805f9b34fb");
+    private static final UUID DEVICE_INFORMATION_SERVICE_UUID = UUID.fromString("0000180A-0000-1000-8000-00805f9b34fb");
     private static final UUID MANUFACTURER_NAME_CHARACTERISTIC_UUID = UUID.fromString("00002A29-0000-1000-8000-00805f9b34fb");
     private static final UUID MODEL_NUMBER_CHARACTERISTIC_UUID = UUID.fromString("00002A24-0000-1000-8000-00805f9b34fb");
 
@@ -83,26 +69,8 @@ class BluetoothHandler {
     private static final UUID CURRENT_TIME_CHARACTERISTIC_UUID = UUID.fromString("00002A2B-0000-1000-8000-00805f9b34fb");
 
     // UUIDs for the Battery Service (BAS)
-    private static final UUID BTS_SERVICE_UUID = UUID.fromString("0000180F-0000-1000-8000-00805f9b34fb");
+    private static final UUID BATTERY_SERVICE_UUID = UUID.fromString("0000180F-0000-1000-8000-00805f9b34fb");
     private static final UUID BATTERY_LEVEL_CHARACTERISTIC_UUID = UUID.fromString("00002A19-0000-1000-8000-00805f9b34fb");
-
-    // UUIDs for the Pulse Oximeter Service (PLX)
-    public static final UUID PLX_SERVICE_UUID = UUID.fromString("00001822-0000-1000-8000-00805f9b34fb");
-    private static final UUID PLX_SPOT_MEASUREMENT_CHAR_UUID = UUID.fromString("00002a5e-0000-1000-8000-00805f9b34fb");
-    private static final UUID PLX_CONTINUOUS_MEASUREMENT_CHAR_UUID = UUID.fromString("00002a5f-0000-1000-8000-00805f9b34fb");
-
-    // UUIDs for the Weight Scale Service (WSS)
-    public static final UUID WSS_SERVICE_UUID = UUID.fromString("0000181D-0000-1000-8000-00805f9b34fb");
-    private static final UUID WSS_MEASUREMENT_CHAR_UUID = UUID.fromString("00002A9D-0000-1000-8000-00805f9b34fb");
-
-    public static final UUID GLUCOSE_SERVICE_UUID = UUID.fromString("00001808-0000-1000-8000-00805f9b34fb");
-    public static final UUID GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID = UUID.fromString("00002A18-0000-1000-8000-00805f9b34fb");
-    public static final UUID GLUCOSE_RECORD_ACCESS_POINT_CHARACTERISTIC_UUID = UUID.fromString("00002A52-0000-1000-8000-00805f9b34fb");
-    public static final UUID GLUCOSE_MEASUREMENT_CONTEXT_CHARACTERISTIC_UUID = UUID.fromString("00002A34-0000-1000-8000-00805f9b34fb");
-
-    // Contour Glucose Service
-    public static final UUID CONTOUR_SERVICE_UUID = UUID.fromString("00000000-0002-11E2-9E96-0800200C9A66");
-    private static final UUID CONTOUR_CLOCK = UUID.fromString("00001026-0002-11E2-9E96-0800200C9A66");
 
     // Local variables
     public BluetoothCentralManager central;
@@ -119,6 +87,18 @@ class BluetoothHandler {
                 .show();
     }
 
+    public void readCurrentTime(String macAddress) {
+        // get the peripheral from mainActivity and call to read the data, in the callback they were send back to main
+        BluetoothPeripheral bluetoothPeripheral = central.getPeripheral(macAddress);
+        bluetoothPeripheral.readCharacteristic(CURRENT_TIME_SERVICE_UUID, CURRENT_TIME_CHARACTERISTIC_UUID);
+    }
+
+    public void setCurrentTimeNotification(String macAddress, boolean status) {
+        // get the peripheral from mainActivity and call to read the data, in the callback they were send back to main
+        BluetoothPeripheral bluetoothPeripheral = central.getPeripheral(macAddress);
+        bluetoothPeripheral.setNotify(CURRENT_TIME_SERVICE_UUID, CURRENT_TIME_CHARACTERISTIC_UUID, status);
+    }
+
     // Callback for peripherals
     private final BluetoothPeripheralCallback peripheralCallback = new BluetoothPeripheralCallback() {
         @Override
@@ -130,42 +110,30 @@ class BluetoothHandler {
             peripheral.requestConnectionPriority(ConnectionPriority.HIGH);
 
             // Read manufacturer and model number from the Device Information Service
-            peripheral.readCharacteristic(DIS_SERVICE_UUID, MANUFACTURER_NAME_CHARACTERISTIC_UUID);
-            peripheral.readCharacteristic(DIS_SERVICE_UUID, MODEL_NUMBER_CHARACTERISTIC_UUID);
+            peripheral.readCharacteristic(DEVICE_INFORMATION_SERVICE_UUID, MANUFACTURER_NAME_CHARACTERISTIC_UUID);
+            peripheral.readCharacteristic(DEVICE_INFORMATION_SERVICE_UUID, MODEL_NUMBER_CHARACTERISTIC_UUID);
 
             // Turn on notifications for Current Time Service and write it if possible
             BluetoothGattCharacteristic currentTimeCharacteristic = peripheral.getCharacteristic(CURRENT_TIME_SERVICE_UUID, CURRENT_TIME_CHARACTERISTIC_UUID);
             if (currentTimeCharacteristic != null) {
+
                 peripheral.setNotify(currentTimeCharacteristic, true);
 
                 // If it has the write property we write the current time
                 if ((currentTimeCharacteristic.getProperties() & PROPERTY_WRITE) > 0) {
                     // Write the current time unless it is an Omron device
+                    /*
                     if (!isOmronBPM(peripheral.getName())) {
                         BluetoothBytesParser parser = new BluetoothBytesParser();
                         parser.setCurrentTime(Calendar.getInstance());
                         peripheral.writeCharacteristic(currentTimeCharacteristic, parser.getValue(), WriteType.WITH_RESPONSE);
-                    }
+                    }*/
                 }
             }
 
             // Try to turn on notifications for other characteristics
-            peripheral.readCharacteristic(BTS_SERVICE_UUID, BATTERY_LEVEL_CHARACTERISTIC_UUID);
-            peripheral.setNotify(BLP_SERVICE_UUID, BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC_UUID, true);
-            peripheral.setNotify(HRS_SERVICE_UUID, HEARTRATE_MEASUREMENT_CHARACTERISTIC_UUID, true);
-            /*
-            peripheral.setNotify(HTS_SERVICE_UUID, TEMPERATURE_MEASUREMENT_CHARACTERISTIC_UUID, true);
-            peripheral.setNotify(PLX_SERVICE_UUID, PLX_CONTINUOUS_MEASUREMENT_CHAR_UUID, true);
-            peripheral.setNotify(PLX_SERVICE_UUID, PLX_SPOT_MEASUREMENT_CHAR_UUID, true);
-            peripheral.setNotify(WSS_SERVICE_UUID, WSS_MEASUREMENT_CHAR_UUID, true);
-            peripheral.setNotify(GLUCOSE_SERVICE_UUID, GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID, true);
-            peripheral.setNotify(GLUCOSE_SERVICE_UUID, GLUCOSE_MEASUREMENT_CONTEXT_CHARACTERISTIC_UUID, true);
-            peripheral.setNotify(GLUCOSE_SERVICE_UUID, GLUCOSE_RECORD_ACCESS_POINT_CHARACTERISTIC_UUID, true);
-            peripheral.setNotify(CONTOUR_SERVICE_UUID, CONTOUR_CLOCK, true);
-
-             */
-            UUID TIMESERVER_UUID = UUID.fromString("00001805-0000-1000-8000-00805f9b34fb");
-            peripheral.setNotify(TIMESERVER_UUID, CONTOUR_CLOCK, true);
+            peripheral.readCharacteristic(BATTERY_SERVICE_UUID, BATTERY_LEVEL_CHARACTERISTIC_UUID);
+            peripheral.setNotify(HEART_BEAT_SERVICE_UUID, HEART_BEAT_RATE_MEASUREMENT_CHARACTERISTIC_UUID, true);
         }
 
         @Override
@@ -173,11 +141,6 @@ class BluetoothHandler {
             if (status == GattStatus.SUCCESS) {
                 final boolean isNotifying = peripheral.isNotifying(characteristic);
                 Timber.i("SUCCESS: Notify set to '%s' for %s", isNotifying, characteristic.getUuid());
-                if (characteristic.getUuid().equals(CONTOUR_CLOCK)) {
-                    writeContourClock(peripheral);
-                } else if (characteristic.getUuid().equals(GLUCOSE_RECORD_ACCESS_POINT_CHARACTERISTIC_UUID)) {
-                    writeGetAllGlucoseMeasurements(peripheral);
-                }
             } else {
                 Timber.e("ERROR: Changing notification state failed for %s (%s)", characteristic.getUuid(), status);
             }
@@ -193,13 +156,21 @@ class BluetoothHandler {
         }
 
         @Override
+        public void onDescriptorRead(@NonNull BluetoothPeripheral peripheral, @NonNull byte[] value, @NonNull BluetoothGattDescriptor descriptor, @NonNull GattStatus status) {
+            super.onDescriptorRead(peripheral, value, descriptor, status);
+            if (status != GattStatus.SUCCESS) return;
+        }
+
+        @Override
         public void onCharacteristicUpdate(@NotNull BluetoothPeripheral peripheral, @NotNull byte[] value, @NotNull BluetoothGattCharacteristic characteristic, @NotNull GattStatus status) {
             if (status != GattStatus.SUCCESS) return;
 
             UUID characteristicUUID = characteristic.getUuid();
             BluetoothBytesParser parser = new BluetoothBytesParser(value);
 
-            if (characteristicUUID.equals(HEARTRATE_MEASUREMENT_CHARACTERISTIC_UUID)) {
+            System.out.println("*** charUUID: " + characteristicUUID.toString() + " ***");
+
+            if (characteristicUUID.equals(HEART_BEAT_RATE_MEASUREMENT_CHARACTERISTIC_UUID)) {
                 HeartRateMeasurement measurement = new HeartRateMeasurement(value);
                 Intent intent = new Intent(MEASUREMENT_HEART_BEAT_RATE);
                 intent.putExtra(MEASUREMENT_HEART_BEAT_RATE_EXTRA, measurement);
@@ -220,39 +191,19 @@ class BluetoothHandler {
                 intent.putExtra(MEASUREMENT_CURRENT_TIME_EXTRA, currentTime.toString());
                 sendMeasurement(intent, peripheral);
                 Timber.d("%s", currentTime);
-                // Deal with Omron devices where we can only write currentTime under specific conditions
-                /*
-                if (isOmronBPM(peripheral.getName())) {
-                    BluetoothGattCharacteristic bloodpressureMeasurement = peripheral.getCharacteristic(BLP_SERVICE_UUID, BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC_UUID);
-                    if (bloodpressureMeasurement == null) return;
 
-                    boolean isNotifying = peripheral.isNotifying(bloodpressureMeasurement);
-                    if (isNotifying) currentTimeCounter++;
-
-                    // We can set device time for Omron devices only if it is the first notification and currentTime is more than 10 min from now
-                    long interval = abs(Calendar.getInstance().getTimeInMillis() - currentTime.getTime());
-                    if (currentTimeCounter == 1 && interval > 10 * 60 * 1000) {
-                        parser.setCurrentTime(Calendar.getInstance());
-                        peripheral.writeCharacteristic(characteristic, parser.getValue(), WriteType.WITH_RESPONSE);
-                    }
-                } else {
-                    Intent intent = new Intent(MEASUREMENT_CURRENT_TIME);
-                    intent.putExtra(MEASUREMENT_HEARTRATE_EXTRA, currentTime);
-                    sendMeasurement(intent, peripheral);
-                    Timber.d("%s", currentTime);
-                } */
             } else if (characteristicUUID.equals(BATTERY_LEVEL_CHARACTERISTIC_UUID)) {
                 int batteryLevel = parser.getIntValue(FORMAT_UINT8);
                 Timber.i("Received battery level %d%%", batteryLevel);
             } else if (characteristicUUID.equals(MANUFACTURER_NAME_CHARACTERISTIC_UUID)) {
                 String manufacturer = parser.getStringValue(0);
                 Timber.i("Received manufacturer: %s", manufacturer);
+                Intent intent = new Intent(MEASUREMENT_MANUFACTURER_NAME);
+                intent.putExtra(MEASUREMENT_MANUFACTURER_NAME_EXTRA, manufacturer);
+                sendMeasurement(intent, peripheral);
             } else if (characteristicUUID.equals(MODEL_NUMBER_CHARACTERISTIC_UUID)) {
                 String modelNumber = parser.getStringValue(0);
                 Timber.i("Received modelnumber: %s", modelNumber);
-            } else if (characteristicUUID.equals(PNP_ID_CHARACTERISTIC_UUID)) {
-                String modelNumber = parser.getStringValue(0);
-                Timber.i("Received pnp: %s", modelNumber);
             }
         }
 
@@ -265,30 +216,6 @@ class BluetoothHandler {
             intent.putExtra(MEASUREMENT_EXTRA_PERIPHERAL, peripheral.getAddress());
             context.sendBroadcast(intent);
         }
-
-        private void writeContourClock(@NotNull BluetoothPeripheral peripheral) {
-            Calendar calendar = Calendar.getInstance();
-            int offsetInMinutes = calendar.getTimeZone().getRawOffset() / 60000;
-            int dstSavingsInMinutes = calendar.getTimeZone().getDSTSavings() / 60000;
-            calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-            BluetoothBytesParser parser = new BluetoothBytesParser(ByteOrder.LITTLE_ENDIAN);
-            parser.setIntValue(1, FORMAT_UINT8);
-            parser.setIntValue(calendar.get(Calendar.YEAR), FORMAT_UINT16);
-            parser.setIntValue(calendar.get(Calendar.MONTH) + 1, FORMAT_UINT8);
-            parser.setIntValue(calendar.get(Calendar.DAY_OF_MONTH), FORMAT_UINT8);
-            parser.setIntValue(calendar.get(Calendar.HOUR_OF_DAY), FORMAT_UINT8);
-            parser.setIntValue(calendar.get(Calendar.MINUTE), FORMAT_UINT8);
-            parser.setIntValue(calendar.get(Calendar.SECOND), FORMAT_UINT8);
-            parser.setIntValue(offsetInMinutes + dstSavingsInMinutes, FORMAT_SINT16);
-            peripheral.writeCharacteristic(CONTOUR_SERVICE_UUID, CONTOUR_CLOCK, parser.getValue(), WriteType.WITH_RESPONSE);
-        }
-
-        private void writeGetAllGlucoseMeasurements(@NotNull BluetoothPeripheral peripheral) {
-            byte OP_CODE_REPORT_STORED_RECORDS = 1;
-            byte OPERATOR_ALL_RECORDS = 1;
-            final byte[] command = new byte[] {OP_CODE_REPORT_STORED_RECORDS, OPERATOR_ALL_RECORDS};
-            peripheral.writeCharacteristic(GLUCOSE_SERVICE_UUID, GLUCOSE_RECORD_ACCESS_POINT_CHARACTERISTIC_UUID, command, WriteType.WITH_RESPONSE);
-        }
     };
 
     // Callback for central
@@ -297,7 +224,6 @@ class BluetoothHandler {
         @Override
         public void onConnectedPeripheral(@NotNull BluetoothPeripheral peripheral) {
             Timber.i("connected to '%s'", peripheral.getName());
-            //printToast("connected to:" + peripheral.getName());
             String data = "connected to:" + peripheral.getAddress() + " (" + peripheral.getName() + ")";
             Intent intent = new Intent(CONNECTED_DEVICE_ACTION);
             intent.putExtra(CONNECTED_DEVICE_EXTRA, data);
@@ -388,14 +314,7 @@ class BluetoothHandler {
         // reset the complete handler if macAddress is provided
         if ((macAddress != null) & (!macAddress.equals(""))) {
 
-
-        //    central.stopScan();
-        //    central.close();
         }
-
-
-
-        //printToast("BH received macAddress: " + mMacAddress);
 
         // Plant a tree
         //Timber.plant(new Timber.DebugTree());
@@ -418,7 +337,7 @@ class BluetoothHandler {
                 printToast("BH handler.postDelayed macAddress: " + macAddress);
                 if (macAddress == null) {
                     printToast("BH macAddress == null");
-                    central.scanForPeripheralsWithServices(new UUID[]{HRS_SERVICE_UUID, BTS_SERVICE_UUID});
+                    central.scanForPeripheralsWithServices(new UUID[]{HEART_BEAT_SERVICE_UUID, BATTERY_SERVICE_UUID});
                 } else {
                     //printToast("BH macAddress NOT null");
                     BluetoothPeripheral peripheral = central.getPeripheral(macAddress);
@@ -435,9 +354,5 @@ class BluetoothHandler {
                 }
             }
         },1000);
-    }
-
-    private boolean isOmronBPM(final String name) {
-        return name.contains("BLESmart_") || name.contains("BLEsmart_");
     }
 }
