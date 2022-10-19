@@ -16,3 +16,4 @@ https://github.com/weliem/blessed-android/blob/master/SERVER.md
 A BLE Glucose device is available here: 
 https://www.diabetes.ascensia.de/produkte/contour-next-mg/
 
+https://www.diabetes.ascensia.de/produkte/contour-next-mg/#frm-fgs
