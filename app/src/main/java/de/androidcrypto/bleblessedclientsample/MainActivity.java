@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     com.google.android.material.textfield.TextInputEditText heartRateMeasurement;
     com.google.android.material.textfield.TextInputEditText currentTime;
     com.google.android.material.textfield.TextInputEditText manufacturerName;
+    com.google.android.material.textfield.TextInputEditText requestedModelNumber; // new for write
+    Button setModelNumber; // new for write
 
     BluetoothHandler bluetoothHandler;
     String connectedDeviceFromBluetoothHandler;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         heartRateMeasurement = findViewById(R.id.etMainHeartRateMeasurement);
         currentTime = findViewById(R.id.etMainCurrentTime);
         manufacturerName = findViewById(R.id.etMainManufacturerNameMeasurement);
+        requestedModelNumber = findViewById(R.id.etMainModelNumberMeasurement);
 
         // get the connectedDevice in case of "back key" pushed
         if (connectedDeviceFromBluetoothHandler != null) {
@@ -132,6 +135,20 @@ public class MainActivity extends AppCompatActivity {
                 if (bluetoothHandler != null) {
                     Log.i("Main", "readCurrentTime started");
                     bluetoothHandler.setCurrentTimeNotification(macAddressFromScan, false);
+                }
+
+            }
+        });
+
+        Button writeModelNumberString = findViewById(R.id.btnMainSetModelNumber);
+        writeModelNumberString.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bluetoothHandler != null) {
+                    String newModelNumber = requestedModelNumber.getText().toString();
+                    if (newModelNumber.equals("")) return;
+                    Log.i("Main", "writeModelNumberString started");
+                    bluetoothHandler.writeModelNumber(macAddressFromScan, newModelNumber);
                 }
 
             }

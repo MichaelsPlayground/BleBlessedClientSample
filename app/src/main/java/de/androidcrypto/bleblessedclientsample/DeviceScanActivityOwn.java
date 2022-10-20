@@ -37,7 +37,7 @@ public class DeviceScanActivityOwn extends AppCompatActivity {
     ArrayAdapter<String> scannedDevicesArrayAdapter;
     List<String> subject_list; // for temporary list
 
-    // Stops scanning after 10 seconds.
+    // Stops scanning after 5 seconds.
     private static final long SCAN_PERIOD = 5000; // 5000 = 5 seconds
 
     /**

@@ -1,6 +1,7 @@
 package de.androidcrypto.bleblessedclientsample;
 
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE;
+import static android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT;
 import static com.welie.blessed.BluetoothBytesParser.FORMAT_SINT16;
 import static com.welie.blessed.BluetoothBytesParser.FORMAT_UINT16;
 import static com.welie.blessed.BluetoothBytesParser.FORMAT_UINT8;
@@ -35,6 +36,7 @@ import com.welie.blessed.WriteType;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -97,6 +99,14 @@ class BluetoothHandler {
         // get the peripheral from mainActivity and call to read the data, in the callback they were send back to main
         BluetoothPeripheral bluetoothPeripheral = central.getPeripheral(macAddress);
         bluetoothPeripheral.setNotify(CURRENT_TIME_SERVICE_UUID, CURRENT_TIME_CHARACTERISTIC_UUID, status);
+    }
+
+    public void writeModelNumber(String macAddress, String data) {
+        byte[] value = data.getBytes(StandardCharsets.UTF_8);
+        BluetoothPeripheral bluetoothPeripheral = central.getPeripheral(macAddress);
+        boolean result = bluetoothPeripheral.writeCharacteristic(DEVICE_INFORMATION_SERVICE_UUID,
+                MODEL_NUMBER_CHARACTERISTIC_UUID, value, WriteType.WITH_RESPONSE);
+        System.out.println("* write to MODEL_NUMBER_CHARACTERISTIC_UUID was successful: " + result);
     }
 
     // Callback for peripherals
