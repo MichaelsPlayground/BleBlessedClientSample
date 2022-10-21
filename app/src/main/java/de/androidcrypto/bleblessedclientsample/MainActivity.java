@@ -203,12 +203,12 @@ public class MainActivity extends AppCompatActivity {
         int targetSdkVersion = getApplicationInfo().targetSdkVersion;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S && targetSdkVersion < Build.VERSION_CODES.S) {
             if (checkLocationServices()) {
-                //initBluetoothHandler();
-                printToast("start scan to proceed");
+                //initBluetoothHandler(); // don't start here, use the initBluetoothHandler from selectedDevice
+                //printToast("start scan to proceed");
             }
         } else {
-            //initBluetoothHandler();
-            printToast("start scan to proceed");
+            //initBluetoothHandler(); // don't start here, use the initBluetoothHandler from selectedDevice
+            //printToast("start scan to proceed");
         }
     }
 

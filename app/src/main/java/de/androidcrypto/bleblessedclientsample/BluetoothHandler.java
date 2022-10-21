@@ -315,9 +315,7 @@ class BluetoothHandler {
 
         this.context = context;
         this.mMacAddress = macAddress; // may be null !
-
         printToast("BH constructor MAC: " + macAddress);
-
 
         // reset the complete handler if macAddress is provided
         if ((macAddress != null) & (!macAddress.equals(""))) {
@@ -342,21 +340,21 @@ class BluetoothHandler {
             public void run() {
                 //central.scanForPeripheralsWithServices(new UUID[]{BLP_SERVICE_UUID, HTS_SERVICE_UUID, HRS_SERVICE_UUID, PLX_SERVICE_UUID, WSS_SERVICE_UUID, GLUCOSE_SERVICE_UUID});
                 //central.scanForPeripherals();
-                printToast("BH handler.postDelayed macAddress: " + macAddress);
+                //printToast("BH handler.postDelayed macAddress: " + macAddress);
                 if (macAddress == null) {
-                    printToast("BH macAddress == null");
+                    //printToast("BH macAddress == null");
                     central.scanForPeripheralsWithServices(new UUID[]{HEART_BEAT_SERVICE_UUID, BATTERY_SERVICE_UUID});
                 } else {
-                    //printToast("BH macAddress NOT null");
+                    //printToast("BH macAddress NOT null: " + macAddress);
                     BluetoothPeripheral peripheral = central.getPeripheral(macAddress);
-                    printToast("found peripheral: " + peripheral.getName());
+                    //printToast("found peripheral: " + peripheral.getName());
                     central.stopScan();
 
                     if (peripheral.getName().contains("Contour") && peripheral.getBondState() == BondState.NONE) {
                         // Create a bond immediately to avoid double pairing popups
                         central.createBond(peripheral, peripheralCallback);
                     } else {
-                        printToast("BH central.connectPeripheral");
+                        //printToast("BH central.connectPeripheral");
                         central.connectPeripheral(peripheral, peripheralCallback);
                     }
                 }
