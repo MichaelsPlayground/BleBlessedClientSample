@@ -56,6 +56,8 @@ class BluetoothHandler {
     public static final String MEASUREMENT_CURRENT_TIME_EXTRA = "androidcrypto.measurement.currenttime.extra";
     public static final String MEASUREMENT_MANUFACTURER_NAME = "androidcrypto.measurement.manufacturername";
     public static final String MEASUREMENT_MANUFACTURER_NAME_EXTRA = "androidcrypto.measurement.manufacturername.extra";
+    public static final String MEASUREMENT_MODEL_NUMBER = "androidcrypto.measurement.modelnumber";
+    public static final String MEASUREMENT_MODEL_NUMBER_EXTRA = "androidcrypto.measurement.modelnumber.extra";
 
     // UUIDs for the Heart Rate service (HRS)
     private static final UUID HEART_BEAT_SERVICE_UUID = UUID.fromString("0000180D-0000-1000-8000-00805f9b34fb");
@@ -99,6 +101,14 @@ class BluetoothHandler {
         // get the peripheral from mainActivity and call to read the data, in the callback they were send back to main
         BluetoothPeripheral bluetoothPeripheral = central.getPeripheral(macAddress);
         bluetoothPeripheral.setNotify(CURRENT_TIME_SERVICE_UUID, CURRENT_TIME_CHARACTERISTIC_UUID, status);
+    }
+
+    public void readModelNumber(String macAddress) {
+        // get the peripheral from mainActivity and call to read the data, in the callback they were send back to main
+        BluetoothPeripheral bluetoothPeripheral = central.getPeripheral(macAddress);
+        boolean result = bluetoothPeripheral.readCharacteristic(DEVICE_INFORMATION_SERVICE_UUID,
+                MODEL_NUMBER_CHARACTERISTIC_UUID);
+        System.out.println("* read from MODEL_NUMBER_CHARACTERISTIC_UUID was successful: " + result);
     }
 
     public void writeModelNumber(String macAddress, String data) {
@@ -212,6 +222,9 @@ class BluetoothHandler {
             } else if (characteristicUUID.equals(MODEL_NUMBER_CHARACTERISTIC_UUID)) {
                 String modelNumber = parser.getStringValue(0);
                 Timber.i("Received modelnumber: %s", modelNumber);
+                Intent intent = new Intent(MEASUREMENT_MODEL_NUMBER);
+                intent.putExtra(MEASUREMENT_MODEL_NUMBER_EXTRA, modelNumber);
+                sendMeasurement(intent, peripheral);
             }
         }
 

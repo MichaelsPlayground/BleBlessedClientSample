@@ -11,8 +11,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="To start press START SCANNING and select the device where the BleBlessedServerExample is running"
-        android:textSize="16sp"
-        android:textAlignment="center"/>
+        android:textAlignment="center"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/btnMainScan"
@@ -61,6 +61,13 @@
                     android:visibility="visible"
                     tools:ignore="KeyboardInaccessibleWidget" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/etMainCurrentTimeDecoration"
@@ -205,9 +212,9 @@
                 app:boxCornerRadiusBottomStart="5dp"
                 app:boxCornerRadiusTopEnd="5dp"
                 app:boxCornerRadiusTopStart="5dp"
-                app:endIconMode="clear_text"
                 app:counterEnabled="true"
                 app:counterMaxLength="15"
+                app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -217,22 +224,54 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
+                    android:maxLength="15"
                     android:maxLines="1"
                     android:text=""
                     android:visibility="visible"
-                    android:maxLength="15"
                     tools:ignore="KeyboardInaccessibleWidget" />
+
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
-                android:id="@+id/btnMainSetModelNumber"
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="2dp"/>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:text="set model number" />
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnMainGetModelNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="get model nbr" />
+
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="wrap_content">
+                </View>
+
+                <Button
+                    android:id="@+id/btnMainSetModelNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="set model nbr" />
+
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="2dp"/>
 
         </LinearLayout>
     </ScrollView>

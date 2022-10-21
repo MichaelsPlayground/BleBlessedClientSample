@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     com.google.android.material.textfield.TextInputEditText currentTime;
     com.google.android.material.textfield.TextInputEditText manufacturerName;
     com.google.android.material.textfield.TextInputEditText requestedModelNumber; // new for write
-    Button setModelNumber; // new for write
+    Button getModelNumber, setModelNumber; // new for write and read
 
     BluetoothHandler bluetoothHandler;
     String connectedDeviceFromBluetoothHandler;
@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(heartRateDataReceiver, new IntentFilter( BluetoothHandler.MEASUREMENT_HEART_BEAT_RATE ));
         registerReceiver(currentTimeDataReceiver, new IntentFilter(BluetoothHandler.MEASUREMENT_CURRENT_TIME));
         registerReceiver(manufacturerNameDataReceiver, new IntentFilter(BluetoothHandler.MEASUREMENT_MANUFACTURER_NAME));
+        registerReceiver(modelNumberDataReceiver, new IntentFilter(BluetoothHandler.MEASUREMENT_MODEL_NUMBER));
 
         scanForDevices = findViewById(R.id.btnMainScan);
         scanForDevices.setOnClickListener(new View.OnClickListener() {
@@ -135,6 +136,18 @@ public class MainActivity extends AppCompatActivity {
                 if (bluetoothHandler != null) {
                     Log.i("Main", "readCurrentTime started");
                     bluetoothHandler.setCurrentTimeNotification(macAddressFromScan, false);
+                }
+
+            }
+        });
+
+        Button readModelNumberString = findViewById(R.id.btnMainGetModelNumber);
+        readModelNumberString.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bluetoothHandler != null) {
+                    Log.i("Main", "readModelNumberString started");
+                    bluetoothHandler.readModelNumber(macAddressFromScan);
                 }
 
             }
@@ -328,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(currentTimeDataReceiver);
         unregisterReceiver(connectedDeviceDataReceiver);
         unregisterReceiver(manufacturerNameDataReceiver);
+        unregisterReceiver(modelNumberDataReceiver);
     }
 
     /**
@@ -359,12 +373,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             HeartRateMeasurement measurement = (HeartRateMeasurement) intent.getSerializableExtra(BluetoothHandler.MEASUREMENT_HEART_BEAT_RATE_EXTRA);
-            //Log.i("Main", "heartRateDataReceiver");
             if (measurement == null) return;
             heartRateMeasurementString = String.format(Locale.ENGLISH, "%d bpm", measurement.pulse);
             heartRateMeasurement.setText(heartRateMeasurementString);
-            //Log.i("Main", "heartRateMeasurement: " + heartRateMeasurement);
-            //measurementValue.setText(String.format(Locale.ENGLISH, "%d bpm", measurement.pulse));
         }
     };
 
@@ -375,7 +386,6 @@ public class MainActivity extends AppCompatActivity {
             if (currentTimeString == null) return;
             connectedDeviceFromBluetoothHandler = currentTimeString;
             currentTime.setText(currentTimeString);
-            //measurementValue.setText(String.format(Locale.ENGLISH, "%d bpm", measurement.pulse));
         }
     };
 
@@ -385,7 +395,15 @@ public class MainActivity extends AppCompatActivity {
             String manufacturerNameString = intent.getStringExtra(BluetoothHandler.MEASUREMENT_MANUFACTURER_NAME_EXTRA);
             if (manufacturerNameString == null) return;
             manufacturerName.setText(manufacturerNameString);
-            //measurementValue.setText(String.format(Locale.ENGLISH, "%d bpm", measurement.pulse));
+        }
+    };
+
+    private final BroadcastReceiver modelNumberDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String dataString = intent.getStringExtra(BluetoothHandler.MEASUREMENT_MODEL_NUMBER_EXTRA);
+            if (dataString == null) return;
+            requestedModelNumber.setText(dataString);
         }
     };
 }
